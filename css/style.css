@@ -2610,3 +2610,26 @@ body.page-transition {
     display: none;
 }
 
+/* Исправление отображения Яндекс Карты */
+.contacts__map {
+    overflow: hidden;
+}
+
+.contacts__map iframe {
+    display: block;
+    width: 100% !important;
+    height: 520px !important;
+    border: 0;
+}
+
+@media (max-width: 1024px) {
+    .contacts__map iframe {
+        height: 430px !important;
+    }
+}
+
+@media (max-width: 600px) {
+    .contacts__map iframe {
+        height: 350px !important;
+    }
+}

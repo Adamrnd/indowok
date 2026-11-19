@@ -415,6 +415,7 @@ if (reviewsTrack) {
     updateReviews();
 }
 
+
 /* ========================================
    ACTIVE HEADER NAVIGATION
 ======================================== */
@@ -424,68 +425,77 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (!navigation) return;
 
-    const links = navigation.querySelectorAll(".navigation__link");
+    const links = Array.from(
+        navigation.querySelectorAll(".navigation__link")
+    );
 
-    const currentPage = window.location.pathname.split("/").pop();
+    const currentPage = window.location.pathname;
 
     // На странице меню всегда активен пункт «Меню»
-    if (currentPage === "menu.html") {
+    if (currentPage.endsWith("/menu.html")) {
         links.forEach(link => {
-            link.classList.remove("navigation__link--active");
-
-            if (link.getAttribute("href") === "menu.html") {
-                link.classList.add("navigation__link--active");
-            }
+            link.classList.toggle(
+                "navigation__link--active",
+                link.getAttribute("href") === "menu.html"
+            );
         });
 
         return;
     }
 
-    // На главной отслеживаем разделы страницы
-    const sectionIds = ["delivery", "about", "contacts"];
-
-    const sections = sectionIds
-        .map(id => document.getElementById(id))
-        .filter(Boolean);
-
-    function setActiveLink(target) {
-        links.forEach(link => {
-            link.classList.remove("navigation__link--active");
-
+    // На главной отслеживаем все разделы,
+    // на которые ведут ссылки в шапке
+    const sections = links
+        .map(link => {
             const href = link.getAttribute("href");
 
-            if (href === target) {
-                link.classList.add("navigation__link--active");
-            }
+            if (!href || !href.startsWith("#")) return null;
+
+            const section = document.querySelector(href);
+
+            return section ? { link, section } : null;
+        })
+        .filter(Boolean);
+
+    function setActiveLink(activeLink) {
+        links.forEach(link => {
+            link.classList.toggle(
+                "navigation__link--active",
+                link === activeLink
+            );
         });
     }
 
     function updateNavigation() {
-        let activeSection = null;
+        let activeItem = null;
 
-        sections.forEach(section => {
-            if (section.getBoundingClientRect().top <= 160) {
-                if (
-                    !activeSection ||
-                    section.getBoundingClientRect().top >
-                    activeSection.getBoundingClientRect().top
-                ) {
-                    activeSection = section;
+        sections.forEach(item => {
+            const top = item.section.getBoundingClientRect().top;
+
+            if (top <= 160) {
+                if (!activeItem || top > activeItem.top) {
+                    activeItem = { ...item, top };
                 }
             }
         });
 
-        if (activeSection) {
-            setActiveLink(`#${activeSection.id}`);
+        if (activeItem) {
+            setActiveLink(activeItem.link);
         } else {
-            setActiveLink("index.html");
+            setActiveLink(
+                links.find(link =>
+                    link.getAttribute("href") === "index.html"
+                )
+            );
         }
     }
 
-    window.addEventListener("scroll", updateNavigation);
+    window.addEventListener("scroll", updateNavigation, {
+        passive: true
+    });
+
     window.addEventListener("resize", updateNavigation);
 
-    // Проверяем активный раздел при загрузке
     updateNavigation();
 });
 
