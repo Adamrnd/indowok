@@ -2,4 +2,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://adamrnd.github.io/indowok/sitemap.xml
+Sitemap: https://indowok.layero.app/sitemap.xml
